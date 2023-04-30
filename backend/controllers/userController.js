@@ -24,7 +24,7 @@ const setTokenAndCookies = (user,req,res,regORlog) => {
             throw new Error("Invalid user data");
         }
 }
-///
+///////////////////////////////////////////////////////////////////////////////////////////
 const registerUser = asyncHandler(
     async(req,res) => {
         const {email , name , password} = req.body;
@@ -47,7 +47,7 @@ const registerUser = asyncHandler(
         const user = await User.create({name,email,password});
         setTokenAndCookies(user,req,res,"register");
    
-}) 
+}) ;
 const  loginUser = asyncHandler(async (req,res) => {
     const {email,password} = req.body;
     if(!email || !password){
@@ -80,7 +80,7 @@ const logout = asyncHandler(async (req,res) => {
         secure:true
     });
     res.status(200).json({message:"Succesfully logged out"});
-})
+});
 const getUserdata = asyncHandler(async (req,res) => {
     const user = await User.findById(req.user._id);
 
@@ -98,10 +98,77 @@ const getUserdata = asyncHandler(async (req,res) => {
     res.status(400);
     throw new Error("User Not Found");
   }
-})
+});
+const loginStatus = asyncHandler(async (req,res) =>{
+    const {token} = req.cookies;
+
+    if(!token)
+    res.status(400).json(false);
+
+    const verified = jwt.verify(token,process.env.JWT_SECRET);
+    if(verified)
+    res.status(200).json(true);
+    else
+    res.status(400).json(false);
+});
+const updateUser = asyncHandler(async (req,res) => {
+const user = await User.findById(req.user._id);
+
+if(!user){
+    res.status(400);
+    throw new Error("You must authorize before update");
+}
+user.email = req.body.email || user.email;
+user.name = req.body.name || user.name;
+user.bio = req.body.bio || user.bio;
+user.photo = req.body.photo || user.photo;
+user.phone = req.body.phone || user.phone;
+
+const updatedUser = await user.save();//User signed as an all database , but i declared user as one of them
+if(updatedUser){
+    const {_id,email,name,bio,photo,phone} = updatedUser;
+    res.json({_id,email,name,bio,photo,phone});
+}
+else{
+    res.status(400);
+    throw new Error("User cannot update");
+}
+});
+const changePassword = asyncHandler(async (req,res) => {
+const user = await User.findById(req.user._id);
+
+if(!user){
+    res.status(400);
+    throw new Error("You must authorize before update");
+}
+const {oldPassword,newPassword,confirmedPassword} = req.body;
+if(!oldPassword || !newPassword || !confirmedPassword){
+    res.status(400);
+    throw new Error("You must fill every field");
+}
+if(newPassword !== confirmedPassword){
+    res.status(400);
+    throw new Error("Confirm password again");
+}
+//I should check if this oldPassword is the same in mongoDB specific user
+const isPasswordCorrect = await bcrypt.compare(oldPassword,user.password);
+if(user && isPasswordCorrect){
+    res.password = newPassword;
+    await user.save();
+    res.status(200).json("Password changed succesfully")
+}
+else{
+    res.status(400);
+    throw new Error("Your old password is incorrect");
+}
+});
+
 module.exports = {
     registerUser,
     loginUser,
     logout,
-    getUserdata
+    getUserdata,
+    loginStatus,
+    updateUser,
+    changePassword
 }
