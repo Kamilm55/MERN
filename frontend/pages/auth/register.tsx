@@ -5,9 +5,10 @@ import React from 'react'
 //yeni register api-a post request ele
 // GONDERECEYIN API LINKI : http://localhost:3001/api/users/register
 //API BASE LINK :import { API_URL } from '../utils/data-fetching';=> API_URL/api/users/register
-//formiknen YUP nan ele 
+//formiknen YUP nan ele
 //errorlari goster
  // error yoxdusa succes deye birsey olsun
+ //git push origin master
 const Register = () => {
       // const [registerInput , setRegisterInput] = useState({
   //   name:"",
@@ -21,8 +22,6 @@ const Register = () => {
   return (
     <div>
         <p>register</p>
-       
-
    {/* <form className="container" onSubmit={dataFetch}>
     <label htmlFor="name">
     <input placeholder='Your name' value={registerInput.name} onChange={(e)=>setRegisterInput({...registerInput,name:e.target.value})} type="text" name="name" id="name" />
