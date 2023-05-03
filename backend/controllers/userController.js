@@ -162,7 +162,9 @@ else{
     throw new Error("Your old password is incorrect");
 }
 });
-
+const forgotPassword = asyncHandler(async (req,res) => {
+    res.send("See your gmail");
+})
 module.exports = {
     registerUser,
     loginUser,
@@ -170,5 +172,6 @@ module.exports = {
     getUserdata,
     loginStatus,
     updateUser,
-    changePassword
+    changePassword,
+    forgotPassword
 }
