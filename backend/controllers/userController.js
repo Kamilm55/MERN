@@ -2,6 +2,9 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcryptjs");
+const Token = require('../models/tokenModel');
+const sendEmail = require('../utils/sendEmail');
+const crypto = require("crypto");
 
 const generateToken = (id) => {
     return jwt.sign({id} , process.env.JWT_SECRET , {expiresIn:"1d"});
@@ -153,7 +156,7 @@ if(newPassword !== confirmedPassword){
 //I should check if this oldPassword is the same in mongoDB specific user
 const isPasswordCorrect = await bcrypt.compare(oldPassword,user.password);
 if(user && isPasswordCorrect){
-    res.password = newPassword;
+    user.password = newPassword;
     await user.save();
     res.status(200).json("Password changed succesfully")
 }
@@ -163,8 +166,54 @@ else{
 }
 });
 const forgotPassword = asyncHandler(async (req,res) => {
-    res.send("See your gmail");
-})
+    const {email} = req.body;
+    if(!email){
+        res.status(400);
+        throw new Error("You must fill email field");
+    }
+
+    const user = await User.findOne({email});
+    if(!user){
+        res.status(400);
+        throw new Error("There is no authenticated user with this email");
+    }
+    const token = await Token.findOne({userId:user._id});//if this user has token delete it
+
+    if(token)
+    await token.deleteOne();
+
+    // create new token for 30 minutes and hash it and save to DB with user ref
+
+   const resetToken = crypto.randomBytes(32).toString("hex") + user._id;//show client  non hashed format   
+   const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex"); //save in DB hashed format
+
+   await new Token({
+    userId:user._id ,
+    token:hashedToken ,
+    createdAt: Date.now(),
+    expiresAt:Date.now() + 30 * (60 * 1000) //30 minutes
+   }).save();
+
+    const sent_from = 'The Bug tracker app' ;
+    const sent_to = email;
+    const message_header = "Reset your password";
+    const message_content = `<div>
+    <h2>Hi!</h2>
+    <p>Your link for resetting password</p>
+    <p>This link is available for 30 minutes</p>
+    <a href=${process.env.FRONTEND_URL}/resetPassword/${resetToken}>${process.env.FRONTEND_URL}/resetPassword/${resetToken}</a>
+    </div>`
+    try {
+         sendEmail(sent_from,sent_to,message_header,message_content);
+         res.status(200).json({message:"You can check your gmail.We send you link for reset password"});
+    } catch (e) {
+        res.status(500);
+        throw new Error(e);
+    }
+});
+const resetPassword = asyncHandler(async (req,res) => {
+res.send("It is okay")
+});
 module.exports = {
     registerUser,
     loginUser,
@@ -173,5 +222,6 @@ module.exports = {
     loginStatus,
     updateUser,
     changePassword,
-    forgotPassword
+    forgotPassword,
+    resetPassword
 }

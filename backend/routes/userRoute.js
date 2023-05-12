@@ -1,5 +1,5 @@
 const express = require("express");
-const { registerUser, loginUser, logout, getUserdata, loginStatus, updateUser, changePassword, forgotPassword } = require("../controllers/userController");
+const { registerUser, loginUser, logout, getUserdata, loginStatus, updateUser, changePassword, forgotPassword, resetPassword } = require("../controllers/userController");
 const protect = require("../middleware/authMiddleware");
 const router = express.Router();
 
@@ -11,6 +11,7 @@ router.get("/getUser",protect,getUserdata);// at first it checks that if there i
 // protect is middleware that protects the route from not authorized persons.
 router.patch("/updateUser",protect,updateUser);//PATCH is used to partially update a resource or document
 router.patch("/changePassword",protect,changePassword);
-router.post("/forgotPassword",forgotPassword);//uncompleted
+router.post("/forgotPassword",forgotPassword);
+router.post("/resetPassword",resetPassword);
 
 module.exports = router ;
