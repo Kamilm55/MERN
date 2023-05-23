@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const Token = require('../models/tokenModel');
 const sendEmail = require('../utils/sendEmail');
 const crypto = require("crypto");
+const { changeToBuffer } = require('../utils/changeToBuffer');
 
 const generateToken = (id) => {
     return jwt.sign({id} , process.env.JWT_SECRET , {expiresIn:"1d"});
@@ -28,14 +29,14 @@ const setTokenAndCookies = (user,req,res,regORlog) => {
         }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-const registerUser = asyncHandler(
-    async(req,res) => {
-        const {email , name , password} = req.body;
+const registerUser = asyncHandler(async(req,res) => {
+        const {email , name , password , bio , phone} = req.body;
+
         if(!email || !name || !password ){
             res.status(400);
             throw new Error("Please fill all the required fields");
         }
-    
+
         if(password.length < 6){
             res.status(400);
             throw new Error("Password length must be more than 6 characters ");
@@ -46,8 +47,12 @@ const registerUser = asyncHandler(
             res.status(400);
             throw new Error("This email has already been registered");
         }
+        // change image to buffer for storing 
+        const final_img = changeToBuffer(req) ;
+            // console.log(final_img);
+            //when i get image if not choose default image in upload -- do this in frontend
         // Create one
-        const user = await User.create({name,email,password});
+        const user = await User.create({name,email,password,photo:final_img,bio,phone});
         setTokenAndCookies(user,req,res,"register");
    
 }) ;
@@ -84,6 +89,18 @@ const logout = asyncHandler(async (req,res) => {
     });
     res.status(200).json({message:"Succesfully logged out"});
 });
+const loginStatus = asyncHandler(async (req,res) =>{
+    const {token} = req.cookies;
+
+    if(!token)
+    res.status(400).json(false);
+
+    const verified = jwt.verify(token,process.env.JWT_SECRET);
+    if(verified)
+    res.status(200).json(true);
+    else
+    res.status(400).json(false);
+});
 const getUserdata = asyncHandler(async (req,res) => {
     const user = await User.findById(req.user._id);
 
@@ -102,18 +119,6 @@ const getUserdata = asyncHandler(async (req,res) => {
     throw new Error("User Not Found");
   }
 });
-const loginStatus = asyncHandler(async (req,res) =>{
-    const {token} = req.cookies;
-
-    if(!token)
-    res.status(400).json(false);
-
-    const verified = jwt.verify(token,process.env.JWT_SECRET);
-    if(verified)
-    res.status(200).json(true);
-    else
-    res.status(400).json(false);
-});
 const updateUser = asyncHandler(async (req,res) => {
 const user = await User.findById(req.user._id);
 
@@ -124,7 +129,12 @@ if(!user){
 user.email = req.body.email || user.email;
 user.name = req.body.name || user.name;
 user.bio = req.body.bio || user.bio;
-user.photo = req.body.photo || user.photo;
+
+if(req.file){
+const final_img = changeToBuffer(req);
+user.photo = final_img || user.photo;/// Photo for multer
+}
+
 user.phone = req.body.phone || user.phone;
 
 const updatedUser = await user.save();//User signed as an all database , but i declared user as one of them
@@ -212,7 +222,29 @@ const forgotPassword = asyncHandler(async (req,res) => {
     }
 });
 const resetPassword = asyncHandler(async (req,res) => {
-res.send("It is okay")
+const {resetToken} = req.params;
+const {newPassword} = req.body;
+// I show client  non hashed format
+const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+const isExistHashedToken = await Token.findOne({
+    token:hashedToken,
+    expiresAt: { $gt: Date.now() }// greater than date.now
+})
+
+if(!isExistHashedToken){
+    res.status(400);
+    throw new Error("Your link is wrong or terminated")
+}else{
+
+    const user = await User.findOne({_id:isExistHashedToken.userId});
+    if(user){
+       user.password = newPassword;//it encrypts bedore saving db with pre function in model
+       await user.save();
+       res.status(200).json("Your password is changed succesfully");
+    }else
+    res.status(400);
+}
+
 });
 module.exports = {
     registerUser,
