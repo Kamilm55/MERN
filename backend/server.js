@@ -9,6 +9,7 @@ const tasksRoute = require('./routes/tasksRoute');
 const sprintsRoute = require('./routes/sprintsRoute');
 const bugsRoute = require('./routes/bugsRoute');
 const errorHandler = require('./middleware/errorMiddleware');
+const protect = require('./middleware/authMiddleware');
 
 const app = express();
 
@@ -28,9 +29,9 @@ app.use(
 
 // Routes Middleware
 app.use("/api/users",userRoute);/// AUTH functions and personal information of each user
-app.use("/api/users/:user/tasks",tasksRoute); // the tasks of specific user
-app.use("/api/users/:user/sprints",sprintsRoute);//sprints
-app.use("/api/users/:user/bugs",bugsRoute);//bug queues
+app.use("/api/users/tasks",protect,tasksRoute); // the tasks of specific user
+app.use("/api/users/sprints",sprintsRoute);//sprints
+app.use("/api/users/bugs",bugsRoute);//bug queues
 /// + kanban features
 
 // Routes
