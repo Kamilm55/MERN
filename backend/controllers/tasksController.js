@@ -12,6 +12,15 @@ const getTasks = asyncHandler(async (req,res)=>{
         throw new Error("Tasks are not found");
     }
 });
+const getOneTask = asyncHandler(async(req,res)=>{
+    const {taskId} = req.params;
+    const selectedTask = await Tasks.findById(taskId);
+    if(!selectedTask){
+        res.status(400);
+        throw new Error("There is no such task with this id");
+    }
+    res.status(200).json(selectedTask);
+});
 const createTask = asyncHandler(async (req,res)=>{
     const {name,priority,type,timelineStart,timelineEnd,taskDescription,bugs} = req.body;
     const {_id} = req.user;
@@ -37,7 +46,7 @@ const createTask = asyncHandler(async (req,res)=>{
 });
 const updateTask = asyncHandler(async (req,res)=>{
     const {taskId} = req.params;
-    const {name,priority,type,timelineStart,timelineEnd,taskDescription,bugs} = req.body;
+    const {name,priority,type,isCompleted,timelineStart,timelineEnd,taskDescription,bugs} = req.body;
 
     if((!timelineEnd && timelineStart) || (timelineEnd && !timelineStart) ){
         res.status(400);
@@ -57,6 +66,7 @@ const updateTask = asyncHandler(async (req,res)=>{
     selectedTask.timelineEnd = timelineEnd  || selectedTask.timelineEnd;
     selectedTask.taskDescription = taskDescription  || selectedTask.taskDescription;
     selectedTask.bugs = bugs  || selectedTask.bugs;
+    selectedTask.isCompleted = isCompleted  || selectedTask.isCompleted;
     await selectedTask.save();
 
     res.status(200).json(selectedTask);
@@ -73,7 +83,8 @@ const deleteTask = asyncHandler(async (req,res)=>{
     }
 });
 const deleteAll = asyncHandler(async (req,res)=>{
-    const deleteAllTasks = await Tasks.deleteMany({});
+    const {_id} = req.user;
+    const deleteAllTasks = await Tasks.deleteMany({UserId:_id});
 
     if(deleteAllTasks){
         res.status(200).json("All tasks are deleted");
@@ -87,5 +98,6 @@ module.exports = {
     createTask,
     updateTask,
     deleteTask,
-    deleteAll
+    deleteAll,
+    getOneTask
 }

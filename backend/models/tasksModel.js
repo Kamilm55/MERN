@@ -1,7 +1,3 @@
-// sprintler olacaq array of objects
-// her sprint objectdir
-// her sprintin bu ozellikleri olacaq
-// task status priority type timeline taskDescription(optional) bugs itemID 
 const mongoose = require("mongoose");
 
 const tasksSchema = mongoose.Schema({
@@ -21,6 +17,10 @@ const tasksSchema = mongoose.Schema({
         type:{
             type:String,
             required:[true,"Please add a type"]
+        },
+        isCompleted:{
+            type:Boolean,
+            default:false
         },
         timelineStart:{
             type:Date

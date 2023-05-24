@@ -48,9 +48,11 @@ const registerUser = asyncHandler(async(req,res) => {
             throw new Error("This email has already been registered");
         }
         // change image to buffer for storing 
-        const final_img = changeToBuffer(req) ;
+        let final_img = {};
+        if(req.file)
+         final_img = changeToBuffer(req) ;
             // console.log(final_img);
-            //when i get image if not choose default image in upload -- do this in frontend
+            //when i get image if not choose "{}" default image in upload -- do this in frontend
         // Create one
         const user = await User.create({name,email,password,photo:final_img,bio,phone});
         setTokenAndCookies(user,req,res,"register");
