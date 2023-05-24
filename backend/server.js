@@ -30,8 +30,8 @@ app.use(
 // Routes Middleware
 app.use("/api/users",userRoute);/// AUTH functions and personal information of each user
 app.use("/api/users/tasks",protect,tasksRoute); // the tasks of specific user
-app.use("/api/users/sprints",sprintsRoute);//sprints
-app.use("/api/users/bugs",bugsRoute);//bug queues
+// app.use("/api/users/sprints",sprintsRoute);//sprints
+// app.use("/api/users/bugs",bugsRoute);//bug queues
 /// + kanban features
 
 // Routes
