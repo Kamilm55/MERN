@@ -15,12 +15,13 @@ const setTokenAndCookies = (user,req,res,regORlog) => {
     // save token via cookies
         res.cookie("token", token ,{
             path:"/",
-            httpOnly:true,
+            httpOnly:false,
             expires:new Date(Date.now() + 1000 * 86400), // it lasts 1 day
-            sameSite:'none',
-            secure:true
+            // sameSite:'none',
+            secure:process.env.NODE_ENV === 'development' ? false : true
         })
-       const {_id,photo,phone,bio} = user;
+
+        const {_id,photo,phone,bio} = user;
        if(user)
         res.status(regORlog === "register" ? 201 : 200).json({_id,email:user.email,name:user.name,photo,phone,bio,token})
         else{
@@ -84,10 +85,11 @@ const  loginUser = asyncHandler(async (req,res) => {
 });
 const logout = asyncHandler(async (req,res) => {
     res.cookie("token", "" ,{
-        httpOnly:true,
+        path:"/",
+        httpOnly:false,
         expires:new Date(0), 
-        sameSite:'none',
-        secure:true
+        // sameSite:'none',
+        secure:process.env.NODE_ENV === 'development' ? false : true
     });
     res.status(200).json({message:"Succesfully logged out"});
 });

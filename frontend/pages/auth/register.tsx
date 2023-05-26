@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useFormik } from 'formik';
 import ConditionalForm from '../../components/ConditionalForm';
-import { API_URL } from '../../utils/data-fetching';
-//name,email,password,phone,photo,bio  inputlar vasitesile mene bu melumatdari gonder
-//formiknen YUP nan ele
-//errorlari goster
- // error yoxdusa succes deye birsey olsun
- //git push origin 
+import * as Yup from 'yup';
+import { useAppDispatch } from '../../app/store/hooks';
+import { register } from '../../app/features/AuthSlice';
+
  
  const Register = () => {
+  const dispatch = useAppDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -19,32 +18,22 @@ import { API_URL } from '../../utils/data-fetching';
       photo:"",
       bio:""
     },
+    validationSchema:Yup.object().shape({
+      name: Yup.string().required('Name is required'),
+      email: Yup.string().email('Invalid email').required('Email is required'),
+      password: Yup.string()
+        .min(6, 'Password must be at least 6 characters')
+        .required('Password is required'),
+    })
+    ,
     onSubmit: values => {
-      const formData = new FormData();
-
-        for(let i in Object.keys(values)){
-          let key = Object.keys(values)[i];
-          let value = Object.values(values)[i];
-          formData.append(key,value);
-        }
-
-        for (var pair of formData.entries()) {
-          console.log(pair[0]+ ', ' + pair[1]); 
-      }
-      fetch(`${API_URL}/api/users/register`, {
-          method: 'POST',
-          body: formData
-        })
-          .then(response => response.json())
-          .then(data => {
-            // Handle the response data here
-            console.log(data);
-        })
+      dispatch(register({values}));
       }
   });
+
   return (
     <div>
-        <p>register</p>
+        <h1 className='text-center'>register</h1>
         <ConditionalForm formik={formik}/>
     </div>
   )

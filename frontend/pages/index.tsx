@@ -1,47 +1,10 @@
 import Layout from '../components/Layout'
-import { Provider } from 'react-redux';
-import {store} from '../store/store'
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { API_URL } from '../utils/data-fetching';
 
 const IndexPage = () => {
-  // const [formData,setFormData] = useState({name:"",email:"",password:"",photo:{}});
-  // const [buffer,setBuffer] = useState(null);
-  // const {name,email,password,photo} = formData;
-  // const multipartForm = new FormData();
-
-//   const Register = () => {
-
-// fetch(`${API_URL}/api/users/register`, {
-//   method: 'POST',
-//   body: multipartForm
-// })
-//   .then(response => response.json())
-//   .then(data => {
-//     // Handle the response data here
-//     console.log(data);
-//     setBuffer(data.photo.image.data);
-   
-    
-//   })
-//   .catch(error => {
-//     // Handle any errors
-//     console.error(error);
-//   });
-//   }
-  // const submit = (e:any) => {
-  //   e.preventDefault();
-  //   multipartForm.append("name","NewUser");
-  //   multipartForm.append("email","NewAsscount22@gmail.com");
-  //   multipartForm.append("password","kamil12345");
-  //   multipartForm.append("photo",photo);    
-  //   // for (const pair of multipartForm.entries()) {
-  //   //   console.log(pair[0], pair[1]);
-  //   // }
-  //   Register();
-  // }
  
   // function convertToBase64(e:any){
   //   // const reader = new FileReader();
@@ -56,9 +19,8 @@ const IndexPage = () => {
   // }
   
   return(
-    <Provider store={store}>
   <Layout>
-   <h1>Ana sehife</h1>
+   <h1 className='text-danger'>Ana sehife</h1>
    <p>///////////////////</p>
    <Link href={'/auth/login'}>Login</Link> <br />
    <p>Eger hesab yoxdursa </p>
@@ -81,7 +43,6 @@ const IndexPage = () => {
     </form> */}
    {/* /dashboard */}
   </Layout>
-  </Provider>
   )}
 
 
