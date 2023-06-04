@@ -2,10 +2,17 @@ import Layout from '../components/Layout'
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { API_URL } from '../utils/data-fetching';
+import { useAppDispatch, useAppSelector } from '../app/store/hooks';
+import { selectTokenCookie, setToken } from '../app/features/AuthSlice';
 
 const IndexPage = () => {
- 
+ const dispatch = useAppDispatch();
+ const token = useAppSelector(selectTokenCookie);
+ useEffect(()=>{
+  dispatch(setToken());
+  console.log(token);
+  
+ },[])
   // function convertToBase64(e:any){
   //   // const reader = new FileReader();
   //   // reader.readAsDataURL(e.target.files[0]);

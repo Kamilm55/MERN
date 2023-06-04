@@ -11,8 +11,8 @@ const ConditionalForm = ({formik}:any) => {
  
   <div className="input-group d-flex flex-column">
   <TextField
-          error={(formik.touched.name || isSubmitted) && Boolean(formik.errors.name)}
-          helperText={(formik.touched.name || isSubmitted) && formik.errors.name}
+          error={(formik.touched.name  && Boolean(formik.errors.name)) || (isSubmitted && formik.values.name === "")}
+          helperText={((formik.touched.name || isSubmitted) && formik.errors.name) || ((isSubmitted && formik.values.name === "") && `Name is required`)}
           fullWidth
           required
           id="name"
@@ -25,8 +25,8 @@ const ConditionalForm = ({formik}:any) => {
     
   <div className="input-group d-flex flex-column">
     <TextField
-    error={(formik.touched.email || isSubmitted) && Boolean(formik.errors.email)}
-    helperText={(formik.touched.email || isSubmitted) && formik.errors.email}
+          error={(formik.touched.email  && Boolean(formik.errors.email)) || (isSubmitted && formik.values.email === "")}
+          helperText={((formik.touched.email || isSubmitted) && formik.errors.email) || ((isSubmitted && formik.values.email === "") && `Email is required`)}
           fullWidth
           required
           id="email"
@@ -39,8 +39,8 @@ const ConditionalForm = ({formik}:any) => {
 
   <div className="input-group d-flex flex-column">
     <TextField
-        error={(formik.touched.password || isSubmitted) && Boolean(formik.errors.password)}
-        helperText={(formik.touched.password || isSubmitted) && formik.errors.password}    
+          error={(formik.touched.password  && Boolean(formik.errors.password)) || (isSubmitted && formik.values.password === "")}
+          helperText={((formik.touched.password || isSubmitted) && formik.errors.password) || ((isSubmitted && formik.values.password === "") && `Password is required`)}
           fullWidth
           required
           id="password"

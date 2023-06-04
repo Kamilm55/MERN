@@ -5,7 +5,6 @@ const bcrypt = require("bcryptjs");
 const Token = require('../models/tokenModel');
 const sendEmail = require('../utils/sendEmail');
 const crypto = require("crypto");
-const { changeToBuffer } = require('../utils/changeToBuffer');
 
 const generateToken = (id) => {
     return jwt.sign({id} , process.env.JWT_SECRET , {expiresIn:"1d"});
@@ -48,12 +47,14 @@ const registerUser = asyncHandler(async(req,res) => {
             res.status(400);
             throw new Error("This email has already been registered");
         }
-        // change image to buffer for storing 
-        let final_img = {};
-        if(req.file)
-         final_img = changeToBuffer(req) ;
-            // console.log(final_img);
-            //when i get image if not choose "{}" default image in upload -- do this in frontend
+
+        // change image for storing 
+        let final_img ;
+        if(req.file){
+            final_img = req.file.filename
+            //if req.file does not exist final img is undefined and model runs default function
+        }
+
         // Create one
         const user = await User.create({name,email,password,photo:final_img,bio,phone});
         setTokenAndCookies(user,req,res,"register");
@@ -134,10 +135,10 @@ user.email = req.body.email || user.email;
 user.name = req.body.name || user.name;
 user.bio = req.body.bio || user.bio;
 
-if(req.file){
-const final_img = changeToBuffer(req);
-user.photo = final_img || user.photo;/// Photo for multer
-}
+  if(req.file){
+    const  final_img = req.file.filename;
+    user.photo = final_img || user.photo;
+ }
 
 user.phone = req.body.phone || user.phone;
 

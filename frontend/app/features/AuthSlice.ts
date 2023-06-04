@@ -2,39 +2,27 @@ import {  createSlice } from "@reduxjs/toolkit";
 import { API_URL } from "../../utils/data-fetching";
 import { RootState } from "../store/store";
 
-const initialState = {
+interface InitialState {
+  loginStatus:boolean;
+  tokenCookie:null | string;
+  user:null | object;
+  }
+
+const initialState:InitialState = {
 loginStatus:false,
-tokenCookie:""
+tokenCookie:null,
+user:null
 }
 
 export const AuthSlice = createSlice({
     name: 'auth',
     initialState: initialState,
     reducers: {
-       register:(state,action)=>{
-            const {values} = action.payload; 
-            const formData = new FormData();
-
-        for(let i in Object.keys(values)){
-          let key = Object.keys(values)[i];
-          let value = Object.values(values)[i];
-          if (typeof value === 'string' || value instanceof Blob)
-            formData.append(key, value);
-        }
-        
-    //     for (let pair of formData.entries()) {
-    //       console.log(pair[0]+ ', ' + pair[1]); 
-    //   }
-      fetch(`${API_URL}/api/users/register`, {
-          method: 'POST',
-          body: formData,
-          credentials: "include" //For cokkies in "Aplication"
-        }
-        )
-          .then(response => response.json())
-          .then(data => {
-            console.log(data);
-        })
+       register:()=>{
+/// it is in => import { REGISTER } from '../../utils/RegisterFunc';
+// it is placed in other func. Because this error =>{
+// client.js:1 A non-serializable value was detected in an action, in the path: `payload.values.photo`.
+//}        
         },
        login:(state,action)=>{
         const {values} = action.payload;
@@ -80,12 +68,28 @@ export const AuthSlice = createSlice({
             .then(data => {
               console.log(data);
           })
+       },
+       setToken:(state)=>{
+
+        if (typeof document !== 'undefined') {
+          const cookies = document.cookie;
+          const token = cookies.split(';').find((cookie) => cookie.includes('token=')) 
+          if (typeof token === 'undefined')
+          state.tokenCookie = null;
+          else
+          state.tokenCookie = token;
+
+          console.log(state.tokenCookie);
+          // In the above code, we check if document exists before accessing it. This ensures that the code is only executed on the client-side where document is available. During server-side rendering, the token variable will be null by default.
+        }
        }
+
     },
   })
 
-  export const {register,login,checkLoginStatus,logout} = AuthSlice.actions;
+  export const {register,login,checkLoginStatus,logout,setToken} = AuthSlice.actions;
   export const selectLoginStatus = (state:RootState) => state.auth.loginStatus
+  export const selectTokenCookie = (state:RootState) => state.auth.tokenCookie
 
   export default AuthSlice.reducer;
 

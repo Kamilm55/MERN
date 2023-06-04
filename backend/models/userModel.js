@@ -22,10 +22,10 @@ const userSchema = mongoose.Schema({
         minLength:[6,"Password must be up to 6"]
     },
     photo: {
-        image:Buffer,
-        contentType: String,
-        // default: "https://i.ibb.co/4pDNDk1/avatar.png",
-      },
+      type: String,
+      required: [true, "Please add a photo"],
+      default: "https://i.ibb.co/4pDNDk1/avatar.png",
+    },
       phone: {
         type: String,
         default: "+994",
